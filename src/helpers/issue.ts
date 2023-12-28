@@ -1,8 +1,8 @@
 import { Octokit } from "octokit";
-const octokit = new Octokit({ auth: "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" });
 import { Comment } from "../types/github";
 
 export async function getCompletedIssues(owner: string, repo: string) {
+  const octokit = new Octokit();
   try {
     let page = 1;
     const completedIssues = [];
@@ -46,6 +46,7 @@ export const getAllIssueComments = async (
   issueNumber: number,
   format: "raw" | "html" | "text" | "full" = "raw"
 ): Promise<Comment[]> => {
+  const octokit = new Octokit();
   const result: Comment[] = [];
   let shouldFetch = true;
   let pageNumber = 1;
@@ -78,6 +79,7 @@ export const getAllIssueComments = async (
 };
 
 export async function getIssueAssignee(owner: string, repo: string, issueNumber: number): Promise<string | undefined> {
+  const octokit = new Octokit();
   try {
     const response = await octokit.rest.issues.get({
       owner,

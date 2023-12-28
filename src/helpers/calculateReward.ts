@@ -1,6 +1,7 @@
 import { UserType } from "../types/github";
 import { getAllIssueComments, getCompletedIssues, getIssueAssignee } from "./issue";
 import { AssigneeRewardMap } from "../types/miscellaneous";
+
 export async function parseRewards(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
   const rewardMap: AssigneeRewardMap = {};
   const comments = await getAllIssueComments(owner, repo, issueNumber);
