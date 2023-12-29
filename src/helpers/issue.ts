@@ -93,3 +93,14 @@ export async function getIssueAssignee(owner: string, repo: string, issueNumber:
     console.error("Error:", error);
   }
 }
+
+export function parsePermit(comment: string) {
+  const regex = /\(([^)]+)\)/;
+  const permit = comment.match(regex);
+  if (permit && permit[1]) {
+    return permit[1];
+  } else {
+    console.log("couldnt find permit");
+    return "";
+  }
+}

@@ -8,4 +8,4 @@ node_modules
 .pnp.loader.mjs
 static/dist
 .env
-output/*
+output

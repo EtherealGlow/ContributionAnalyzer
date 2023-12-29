@@ -1,3 +1,3 @@
 export interface AssigneeRewardMap {
-  [assignee: string]: number;
+  [assignee: string]: { reward: number; permit: string[] };
 }

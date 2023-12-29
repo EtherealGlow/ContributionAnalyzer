@@ -1,5 +1,5 @@
 import { UserType } from "../types/github";
-import { getAllIssueComments, getCompletedIssues, getIssueAssignee } from "./issue";
+import { getAllIssueComments, getCompletedIssues, getIssueAssignee, parsePermit } from "./issue";
 import { AssigneeRewardMap } from "../types/miscellaneous";
 
 export async function parseRewards(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
@@ -15,9 +15,29 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
     if (comment.body.includes("#### Task Assignee Reward")) {
       const match = comment.body.match(/CLAIM (\d+(\.\d+)?)/);
       const reward = match?.[1] ? parseFloat(match[1]) : 0;
+
       const assigneeOrDefault = assignee || "null";
       const finalReward = isNaN(reward) ? 0 : reward;
-      rewardMap[assigneeOrDefault] = (rewardMap[assigneeOrDefault] || 0) + finalReward;
+      const permitComment = parsePermit(comment.body);
+
+      if (rewardMap[assigneeOrDefault]) {
+        if (rewardMap[assigneeOrDefault].reward) {
+          rewardMap[assigneeOrDefault].reward = rewardMap[assigneeOrDefault].reward + finalReward;
+        } else {
+          rewardMap[assigneeOrDefault].reward = finalReward;
+        }
+
+        if (!rewardMap[assigneeOrDefault].permit) {
+          rewardMap[assigneeOrDefault].permit = [];
+        }
+
+        rewardMap[assigneeOrDefault].permit.push(permitComment);
+      } else {
+        rewardMap[assigneeOrDefault] = {
+          reward: finalReward,
+          permit: [permitComment],
+        };
+      }
     } else {
       const regex = /(?:\*\*([^:]+):\s*\[ CLAIM ([\d.]+)\s*(\w+) \])/;
       const match = comment.body.match(regex);
@@ -25,7 +45,22 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
       if (match) {
         const username = match[1].trim();
         const reward = match[2].trim();
-        rewardMap[username] = (rewardMap[username] || 0) + parseFloat(reward);
+        const permitComment = parsePermit(comment.body);
+
+        if (rewardMap[username]) {
+          rewardMap[username].reward = (rewardMap[username].reward ?? 0) + parseFloat(reward);
+
+          if (!rewardMap[username].permit) {
+            rewardMap[username].permit = [];
+          }
+
+          rewardMap[username].permit.push(permitComment);
+        } else {
+          rewardMap[username] = {
+            reward: parseFloat(reward),
+            permit: [permitComment],
+          };
+        }
       }
     }
   });

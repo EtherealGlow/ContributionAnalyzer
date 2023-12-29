@@ -710,6 +710,11 @@
     ignore "^5.1.8"
     p-map "^4.0.0"
 
+"@streamparser/json@^0.0.6":
+  version "0.0.6"
+  resolved "https://registry.npmjs.org/@streamparser/json/-/json-0.0.6.tgz"
+  integrity sha512-vL9EVn/v+OhZ+Wcs6O4iKE9EUpwHUqHmCtNUMWjqp+6dr85+XPOSGTEsqYNq1Vn04uk9SWlOVmx9J48ggJVT2Q==
+
 "@types/aws-lambda@^8.10.83":
   version "8.10.130"
   resolved "https://registry.npmjs.org/@types/aws-lambda/-/aws-lambda-8.10.130.tgz"
@@ -724,6 +729,13 @@
   version "7.0.15"
   resolved "https://registry.npmjs.org/@types/json-schema/-/json-schema-7.0.15.tgz"
   integrity sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==
+
+"@types/json2csv@^5.0.7":
+  version "5.0.7"
+  resolved "https://registry.npmjs.org/@types/json2csv/-/json2csv-5.0.7.tgz"
+  integrity sha512-Ma25zw9G9GEBnX8b12R4EYvnFT6dBh8L3jwsN5EUFXa+fl2dqmbLDbNWN0XuQU3rSXdsbBeCYjI9uHU2PUBxhA==
+  dependencies:
+    "@types/node" "*"
 
 "@types/jsonwebtoken@^9.0.0":
   version "9.0.5"
@@ -1222,6 +1234,11 @@ commander@^4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/commander/-/commander-4.1.1.tgz"
   integrity sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==
+
+commander@^6.2.0:
+  version "6.2.1"
+  resolved "https://registry.npmjs.org/commander/-/commander-6.2.1.tgz"
+  integrity sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==
 
 commander@11.1.0:
   version "11.1.0"
@@ -2450,6 +2467,15 @@ json-stringify-safe@^5.0.1:
   resolved "https://registry.npmjs.org/json-stringify-safe/-/json-stringify-safe-5.0.1.tgz"
   integrity sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==
 
+json2csv@^6.0.0-alpha.2:
+  version "6.0.0-alpha.2"
+  resolved "https://registry.npmjs.org/json2csv/-/json2csv-6.0.0-alpha.2.tgz"
+  integrity sha512-nJ3oP6QxN8z69IT1HmrJdfVxhU1kLTBVgMfRnNZc37YEY+jZ4nU27rBGxT4vaqM/KUCavLRhntmTuBFqZLBUcA==
+  dependencies:
+    "@streamparser/json" "^0.0.6"
+    commander "^6.2.0"
+    lodash.get "^4.4.2"
+
 jsonfile@^6.0.1:
   version "6.1.0"
   resolved "https://registry.npmjs.org/jsonfile/-/jsonfile-6.1.0.tgz"
@@ -2632,6 +2658,11 @@ lodash.curry@^4.1.1:
   version "4.1.1"
   resolved "https://registry.npmjs.org/lodash.curry/-/lodash.curry-4.1.1.tgz"
   integrity sha512-/u14pXGviLaweY5JI0IUzgzF2J6Ne8INyzAZjImcryjgkZ+ebruBxy2/JaOOkTqScddcYtakjhSaeemV8lR0tA==
+
+lodash.get@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.npmjs.org/lodash.get/-/lodash.get-4.4.2.tgz"
+  integrity sha512-z+Uw/vLuy6gQe8cfaFWD7p0wVv8fJl3mbzXh33RS+0oW2wvUqiRXiQ69gLWSLpgB5/6sU+r6BlQR0MBILadqTQ==
 
 lodash.includes@^4.3.0:
   version "4.3.0"

@@ -1,5 +1,5 @@
 import { calculateIssueReward, calculateRepoReward } from "./helpers/calculateReward";
-import { convertToExcel } from "./helpers/excel";
+import { convertToCSV } from "./helpers/excel";
 import { checkIfRepoExists } from "./helpers/github";
 
 if (process.argv[2] == "--help") {
@@ -27,4 +27,4 @@ if (!exists) {
 
 const issueNumber = Number(process.argv[3]) ?? null;
 const rewardData = issueNumber ? await calculateIssueReward(owner, repo, issueNumber) : await calculateRepoReward(owner, repo);
-await convertToExcel(rewardData);
+await convertToCSV(rewardData);
