@@ -1,4 +1,4 @@
-# `@ubiquity/Contribution analyzer`
+# `@ubiquity/ContributionAnalyzer`
 
 This project was made to calculate the bounty rewards of the hunters of ubiquibot
 
