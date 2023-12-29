@@ -1,8 +1,9 @@
-# `@ubiquity/ts-template`
+# `@ubiquity/Contribution analyzer`
 
-This template repository includes support for the following:
+This project was made to calculate the bounty rewards of the hunters of ubiquibot
 
-- TypeScript
-- Environment Variables
-- Conventional Commits
-- Automatic publishing of pull requests to Cloudflare Pages
+Usage: `npx tsx src/index.ts ubiquity/ubiquibot`
+The above command calculates rewards for every issues in that repository
+
+Or optionally you can specify a issue number to only calculate rewards for that specific issue
+Usage: `npx tsx src/index.ts ubiquity/ubiquibot 773`
