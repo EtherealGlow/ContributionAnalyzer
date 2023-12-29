@@ -1,6 +1,7 @@
 import { UserType } from "../types/github";
 import { getAllIssueComments, getCompletedIssues, getIssueAssignee, parsePermit } from "./issue";
 import { AssigneeRewardMap } from "../types/miscellaneous";
+import { mergeRewards } from "./excel";
 
 export async function parseRewards(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
   const rewardMap: AssigneeRewardMap = {};
@@ -74,7 +75,7 @@ export async function calculateRepoReward(owner: string, repo: string) {
   for (let i = 0; i < issues.length; i++) {
     const issueNumber = issues[i].number;
     const reward = await parseRewards(owner, repo, issueNumber);
-    totalReward = { ...totalReward, ...reward };
+    totalReward = mergeRewards(totalReward, reward);
   }
   return totalReward;
 }
