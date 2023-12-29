@@ -33,7 +33,7 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
   return rewardMap;
 }
 
-export async function calculateReward(owner: string, repo: string) {
+export async function calculateRepoReward(owner: string, repo: string) {
   const issues = await getCompletedIssues(owner, repo);
   let totalReward: AssigneeRewardMap = {};
   for (let i = 0; i < issues.length; i++) {
@@ -42,4 +42,8 @@ export async function calculateReward(owner: string, repo: string) {
     totalReward = { ...totalReward, ...reward };
   }
   return totalReward;
+}
+
+export async function calculateIssueReward(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
+  return await parseRewards(owner, repo, issueNumber);
 }
