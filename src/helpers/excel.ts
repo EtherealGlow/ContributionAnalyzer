@@ -44,7 +44,6 @@ export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): 
   const result: AssigneeRewardMap = {};
 
   // Merge map1 into the result
-  // eslint-disable-next-line no-prototype-builtins
   for (const assignee in map1) {
     if (map1.hasOwnProperty(assignee)) {
       result[assignee] = {
@@ -55,7 +54,6 @@ export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): 
   }
 
   // Merge map2 into the result
-  // eslint-disable-next-line no-prototype-builtins
   for (const assignee in map2) {
     if (map2.hasOwnProperty(assignee)) {
       result[assignee] = {
