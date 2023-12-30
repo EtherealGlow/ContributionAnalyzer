@@ -1,8 +1,9 @@
 import { Octokit } from "octokit";
 import { Comment } from "../types/github";
 
+const octokit = new Octokit();
+
 export async function getCompletedIssues(owner: string, repo: string) {
-  const octokit = new Octokit();
   try {
     let page = 1;
     const completedIssues = [];
@@ -40,13 +41,13 @@ export async function getCompletedIssues(owner: string, repo: string) {
   }
 }
 
+// eslint-disable-next-line func-style
 export const getAllIssueComments = async (
   owner: string,
   repo: string,
   issueNumber: number,
   format: "raw" | "html" | "text" | "full" = "raw"
 ): Promise<Comment[]> => {
-  const octokit = new Octokit();
   const result: Comment[] = [];
   let shouldFetch = true;
   let pageNumber = 1;
@@ -79,7 +80,6 @@ export const getAllIssueComments = async (
 };
 
 export async function getIssueAssignee(owner: string, repo: string, issueNumber: number): Promise<string | undefined> {
-  const octokit = new Octokit();
   try {
     const response = await octokit.rest.issues.get({
       owner,
@@ -102,5 +102,34 @@ export function parsePermit(comment: string) {
   } else {
     console.log("couldnt find permit");
     return "";
+  }
+}
+
+export async function getOrgRepositories(org: string) {
+  try {
+    const response = await octokit.request("GET /orgs/{org}/repos", {
+      org: org,
+      headers: {
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+    });
+    const repositories = response.data.map((repo) => repo.name);
+    return repositories;
+  } catch (error) {
+    console.error("Error fetching repositories:", error);
+    return [];
+  }
+}
+
+export async function getUserRepositories(username: string) {
+  try {
+    const response = await octokit.rest.repos.listForUser({
+      username,
+    });
+    const repositories = response.data.map((repo) => repo.name);
+    return repositories;
+  } catch (error) {
+    console.error("Error fetching repositories:", error);
+    return [];
   }
 }
