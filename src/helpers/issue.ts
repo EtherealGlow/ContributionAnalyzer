@@ -1,7 +1,8 @@
 import { Octokit } from "octokit";
 import { Comment } from "../types/github";
-
-const octokit = new Octokit();
+import { config } from "dotenv";
+config();
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 export async function getCompletedIssues(owner: string, repo: string) {
   try {

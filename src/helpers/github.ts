@@ -1,5 +1,7 @@
 import { Octokit } from "octokit";
-const octokit = new Octokit();
+import { config } from "dotenv";
+config();
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 export async function checkIfRepoExists(owner: string, repo: string): Promise<boolean> {
   try {
