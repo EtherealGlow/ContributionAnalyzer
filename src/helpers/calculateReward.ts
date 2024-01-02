@@ -3,11 +3,13 @@ import { getAllIssueComments, getCompletedIssues, getIssueAssignee, getOrgReposi
 import { AssigneeRewardMap } from "../types/miscellaneous";
 
 export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): AssigneeRewardMap {
+  console.log("Merging rewards...");
   const result: AssigneeRewardMap = {};
 
   // Merge map1 into the result
   for (const assignee in map1) {
     if (map1.hasOwnProperty(assignee)) {
+      console.log(`Merging rewards for assignee ${assignee} from map1`);
       result[assignee] = {
         reward: (result[assignee]?.reward || 0) + map1[assignee].reward,
         permit: (result[assignee]?.permit || []).concat(map1[assignee].permit),
@@ -18,6 +20,7 @@ export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): 
   // Merge map2 into the result
   for (const assignee in map2) {
     if (map2.hasOwnProperty(assignee)) {
+      console.log(`Merging rewards for assignee ${assignee} from map2`);
       result[assignee] = {
         reward: (result[assignee]?.reward || 0) + map2[assignee].reward,
         permit: (result[assignee]?.permit || []).concat(map2[assignee].permit),
@@ -25,10 +28,12 @@ export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): 
     }
   }
 
+  console.log("Rewards merged successfully.");
   return result;
 }
 
 export async function parseRewards(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
+  console.log(`Parsing rewards for owner ${owner}, repo ${repo}, issue number ${issueNumber}`);
   const rewardMap: AssigneeRewardMap = {};
   const comments = await getAllIssueComments(owner, repo, issueNumber);
 
@@ -46,6 +51,7 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
       const finalReward = isNaN(reward) ? 0 : reward;
       const permitComment = comment.html_url;
 
+      console.log(`Processing reward for assignee ${assigneeOrDefault}`);
       if (rewardMap[assigneeOrDefault]) {
         if (rewardMap[assigneeOrDefault].reward) {
           rewardMap[assigneeOrDefault].reward = rewardMap[assigneeOrDefault].reward + finalReward;
@@ -73,6 +79,7 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
         const reward = match[2].trim();
         const permitComment = comment.html_url;
 
+        console.log(`Processing reward for user ${username}`);
         if (rewardMap[username]) {
           rewardMap[username].reward = (rewardMap[username].reward ?? 0) + parseFloat(reward);
 
@@ -91,31 +98,40 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
     }
   });
 
+  console.log("Rewards parsed successfully.");
   return rewardMap;
 }
 
 export async function calculateIssueReward(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
-  return await parseRewards(owner, repo, issueNumber);
+  console.log(`Calculating issue reward for owner ${owner}, repo ${repo}, issue number ${issueNumber}`);
+  const reward = await parseRewards(owner, repo, issueNumber);
+  console.log("Issue reward calculated successfully.");
+  return reward;
 }
 
 export async function calculateRepoReward(owner: string, repo: string) {
+  console.log(`Calculating repo reward for owner ${owner}, repo ${repo}`);
   const issues = await getCompletedIssues(owner, repo);
   let totalReward: AssigneeRewardMap = {};
   for (let i = 0; i < issues.length; i++) {
     const issueNumber = issues[i].number;
+    console.log(`Calculating reward for issue number ${issueNumber}`);
     const reward = await parseRewards(owner, repo, issueNumber);
     totalReward = mergeRewards(totalReward, reward);
   }
+  console.log("Repo reward calculated successfully.");
   return totalReward;
 }
 
 export async function calculateOrgReward(owner: string) {
+  console.log(`Calculating organization reward for owner ${owner}`);
   const repos = await getOrgRepositories(owner);
   let totalReward: AssigneeRewardMap = {};
   for (let i = 0; i < repos.length; i++) {
-    console.log(repos[i]);
+    console.log(`Calculating reward for repo ${repos[i]}`);
     const reward = await calculateRepoReward(owner, repos[i]);
     totalReward = mergeRewards(totalReward, reward);
   }
+  console.log("Organization reward calculated successfully.");
   return totalReward;
 }
