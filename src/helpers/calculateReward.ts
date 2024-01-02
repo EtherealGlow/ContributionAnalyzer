@@ -43,7 +43,34 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
   const assignee = await getIssueAssignee(owner, repo, issueNumber);
 
   payComments.forEach((comment) => {
-    if (comment.body.includes("#### Task Assignee Reward")) {
+    // for conv or task creator rewards
+    if (comment.body.includes("#### Conversation Rewards") || comment.body.includes("#### Task Creator Reward")) {
+      const regex = /(?:\*\*([^:]+):\s*\[ CLAIM ([\d.]+)\s*(\w+) \])/;
+      const match = comment.body.match(regex);
+
+      if (match) {
+        const username = match[1].trim();
+        const reward = match[2].trim();
+        const permitComment = comment.html_url;
+
+        console.log(`Processing reward for user ${username}`);
+        if (rewardMap[username]) {
+          rewardMap[username].reward = (rewardMap[username].reward ?? 0) + parseFloat(reward);
+
+          if (!rewardMap[username].permit) {
+            rewardMap[username].permit = [];
+          }
+
+          rewardMap[username].permit.push(permitComment);
+        } else {
+          rewardMap[username] = {
+            reward: parseFloat(reward),
+            permit: [permitComment],
+          };
+        }
+      }
+    } else {
+      // assignee rewards
       const match = comment.body.match(/CLAIM (\d+(\.\d+)?)/);
       const reward = match?.[1] ? parseFloat(match[1]) : 0;
 
@@ -69,31 +96,6 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
           reward: finalReward,
           permit: [permitComment],
         };
-      }
-    } else {
-      const regex = /(?:\*\*([^:]+):\s*\[ CLAIM ([\d.]+)\s*(\w+) \])/;
-      const match = comment.body.match(regex);
-
-      if (match) {
-        const username = match[1].trim();
-        const reward = match[2].trim();
-        const permitComment = comment.html_url;
-
-        console.log(`Processing reward for user ${username}`);
-        if (rewardMap[username]) {
-          rewardMap[username].reward = (rewardMap[username].reward ?? 0) + parseFloat(reward);
-
-          if (!rewardMap[username].permit) {
-            rewardMap[username].permit = [];
-          }
-
-          rewardMap[username].permit.push(permitComment);
-        } else {
-          rewardMap[username] = {
-            reward: parseFloat(reward),
-            permit: [permitComment],
-          };
-        }
       }
     }
   });

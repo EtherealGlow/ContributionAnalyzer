@@ -1,4 +1,5 @@
 import { createWriteStream } from "fs";
+import { createDirectoryIfNotExists } from "./file";
 
 function getMaxPermits(data: Record<string, { reward: number; permit: string[] }>): number {
   let maxPermits = 0;
@@ -13,8 +14,10 @@ function getMaxPermits(data: Record<string, { reward: number; permit: string[] }
   return maxPermits;
 }
 
-export async function convertToCSV(data: Record<string, { reward: number; permit: string[] }>, outputPath: string = "output/output.csv"): Promise<void> {
+export async function convertToCSV(data: Record<string, { reward: number; permit: string[] }>): Promise<void> {
   const csvData: string[] = [];
+  const outputPath = "output/output.csv";
+  createDirectoryIfNotExists("output");
 
   // Push the header row
   csvData.push(["assignee", "reward", ...Array.from({ length: getMaxPermits(data) }, (a, i) => `permit${i + 1}`)].join(","));
