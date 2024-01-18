@@ -1,12 +1,12 @@
 import { UserType } from "../types/github";
-import { getAllIssueComments, getCompletedIssues, getIssueAssignee, getOrgRepositories } from "./issue";
+import { getAllIssueComments, getCompletedIssues, getOrgRepositories } from "./issue";
 import { AssigneeRewardMap } from "../types/miscellaneous";
+import { getUserFromWalletAddr } from "../adapters/supabase/helpers";
 
 export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): AssigneeRewardMap {
   console.log("Merging rewards...");
   const result: AssigneeRewardMap = {};
 
-  // Merge map1 into the result
   for (const assignee in map1) {
     if (map1.hasOwnProperty(assignee)) {
       console.log(`Merging rewards for assignee ${assignee} from map1`);
@@ -17,7 +17,6 @@ export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): 
     }
   }
 
-  // Merge map2 into the result
   for (const assignee in map2) {
     if (map2.hasOwnProperty(assignee)) {
       console.log(`Merging rewards for assignee ${assignee} from map2`);
@@ -40,70 +39,41 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
   const payComments = comments.filter((comment) => {
     return comment.user.type === UserType.Bot && comment.body.includes("pay.ubq.fi");
   });
-  const assignee = await getIssueAssignee(owner, repo, issueNumber);
 
-  payComments.forEach((comment) => {
-    // for conv or task creator rewards
-    if (comment.body.includes("#### Conversation Rewards") || comment.body.includes("#### Task Creator Reward")) {
-      const regex = /(?:\*\*([^:]+):\s*\[ CLAIM ([\d.]+)\s*(\w+) \])/;
-      const match = comment.body.match(regex);
+  for (const comment of payComments) {
+    const match = comment.body.match(/\(([^)]+)\)/);
+    if (match) {
+      const permitUrl = match[1] ?? "";
+      const claimParam = new URLSearchParams(permitUrl).get("https://pay.ubq.fi?claim") ?? "";
+      const claimData = JSON.parse(Buffer.from(claimParam, "base64").toString("binary"));
+      const bountyWinner = (await getUserFromWalletAddr(claimData.transferDetails.to)) ?? "";
+      const amountWon = Number(claimData.transferDetails.requestedAmount) / 10 ** 18; // Fix exponentiation
+      const githubPermitComment = comment.html_url;
 
-      if (match) {
-        const username = match[1].trim();
-        const reward = match[2].trim();
-        const permitComment = comment.html_url;
-
-        console.log(`Processing reward for user ${username}`);
-        if (rewardMap[username]) {
-          rewardMap[username].reward = (rewardMap[username].reward ?? 0) + parseFloat(reward);
-
-          if (!rewardMap[username].permit) {
-            rewardMap[username].permit = [];
-          }
-
-          rewardMap[username].permit.push(permitComment);
+      if (rewardMap[bountyWinner]) {
+        if (rewardMap[bountyWinner].reward) {
+          rewardMap[bountyWinner].reward += amountWon; // Fix increment
         } else {
-          rewardMap[username] = {
-            reward: parseFloat(reward),
-            permit: [permitComment],
-          };
-        }
-      }
-    } else {
-      // assignee rewards
-      const match = comment.body.match(/CLAIM (\d+(\.\d+)?)/);
-      const reward = match?.[1] ? parseFloat(match[1]) : 0;
-
-      const assigneeOrDefault = assignee || "null";
-      const finalReward = isNaN(reward) ? 0 : reward;
-      const permitComment = comment.html_url;
-
-      console.log(`Processing reward for assignee ${assigneeOrDefault}`);
-      if (rewardMap[assigneeOrDefault]) {
-        if (rewardMap[assigneeOrDefault].reward) {
-          rewardMap[assigneeOrDefault].reward = rewardMap[assigneeOrDefault].reward + finalReward;
-        } else {
-          rewardMap[assigneeOrDefault].reward = finalReward;
+          rewardMap[bountyWinner].reward = amountWon;
         }
 
-        if (!rewardMap[assigneeOrDefault].permit) {
-          rewardMap[assigneeOrDefault].permit = [];
+        if (!rewardMap[bountyWinner].permit) {
+          rewardMap[bountyWinner].permit = [];
         }
 
-        rewardMap[assigneeOrDefault].permit.push(permitComment);
+        rewardMap[bountyWinner].permit.push(githubPermitComment);
       } else {
-        rewardMap[assigneeOrDefault] = {
-          reward: finalReward,
-          permit: [permitComment],
+        rewardMap[bountyWinner] = {
+          reward: amountWon,
+          permit: [githubPermitComment],
         };
       }
     }
-  });
+  }
 
   console.log("Rewards parsed successfully.");
   return rewardMap;
 }
-
 export async function calculateIssueReward(owner: string, repo: string, issueNumber: number): Promise<AssigneeRewardMap> {
   console.log(`Calculating issue reward for owner ${owner}, repo ${repo}, issue number ${issueNumber}`);
   const reward = await parseRewards(owner, repo, issueNumber);

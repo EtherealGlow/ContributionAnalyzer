@@ -41,5 +41,3 @@ if (!repo) {
   const rewardData = issueNumber ? await calculateIssueReward(owner, repo, issueNumber) : await calculateRepoReward(owner, repo);
   await convertToCSV(rewardData);
 }
-
-console.log(await userExists(owner));
