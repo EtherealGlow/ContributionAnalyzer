@@ -1,6 +1,6 @@
 import { UserType } from "../types/github";
 import { getAllIssueComments, getCompletedIssues, getOrgRepositories } from "./issue";
-import { AssigneeRewardMap } from "../types/miscellaneous";
+import { AssigneeRewardMap, Bounty } from "../types/miscellaneous";
 import { getUserFromWalletAddr } from "../adapters/supabase/helpers";
 
 export function mergeRewards(map1: AssigneeRewardMap, map2: AssigneeRewardMap): AssigneeRewardMap {
@@ -45,8 +45,8 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
     if (match) {
       const permitUrl = match[1] ?? "";
       const claimParam = new URLSearchParams(permitUrl).get("https://pay.ubq.fi?claim") ?? "";
-      const claimData = JSON.parse(Buffer.from(claimParam, "base64").toString("binary"));
-      const bountyWinner = (await getUserFromWalletAddr(claimData.transferDetails.to)) ?? "";
+      const claimData = JSON.parse(Buffer.from(claimParam, "base64").toString("binary")) as Bounty;
+      const bountyWinner = (await getUserFromWalletAddr(claimData.transferDetails.to.toLowerCase())) ?? "";
       const amountWon = Number(claimData.transferDetails.requestedAmount) / 10 ** 18; // Fix exponentiation
       const githubPermitComment = comment.html_url;
 

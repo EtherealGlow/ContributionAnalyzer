@@ -15,6 +15,6 @@ export const supabase = (url: string, key: string): SupabaseClient => {
 
 export const getUserFromWalletAddr = async (wallet: string): Promise<string | undefined> => {
   const { supabase } = getAdapters();
-  const { data } = await supabase.from("wallets").select("user_name").eq("wallet_address", wallet).single();
+  const { data } = await supabase.from("wallets").select("user_name").ilike("wallet_address", wallet).single();
   return data?.user_name;
 };
