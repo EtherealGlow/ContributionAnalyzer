@@ -1,5 +1,5 @@
 import { UserType } from "../types/github";
-import { getAllIssueComments, getCompletedIssues, getOrgRepositories } from "./issue";
+import { getAllIssueComments, getAllIssues, getOrgRepositories } from "./issue";
 import { AssigneeRewardMap, Bounty } from "../types/miscellaneous";
 import { getUserFromWalletAddr } from "../adapters/supabase/helpers";
 
@@ -45,8 +45,16 @@ export async function parseRewards(owner: string, repo: string, issueNumber: num
     if (match) {
       const permitUrl = match[1] ?? "";
       const claimParam = new URLSearchParams(permitUrl).get("https://pay.ubq.fi?claim") ?? "";
-      const claimData = JSON.parse(Buffer.from(claimParam, "base64").toString("binary")) as Bounty;
-      const bountyWinner = (await getUserFromWalletAddr(claimData.transferDetails.to.toLowerCase())) ?? "";
+
+      let claimData = {} as Bounty;
+      try {
+        claimData = JSON.parse(Buffer.from(claimParam, "base64").toString("binary"));
+      } catch (e) {
+        console.log(`Couldnt parse bounty for ${issueNumber}`);
+        continue;
+      }
+      const bountyWinner = (await getUserFromWalletAddr(claimData.transferDetails.to.toLowerCase())) ?? "AddrNotFound";
+
       const amountWon = Number(claimData.transferDetails.requestedAmount) / 10 ** 18; // Fix exponentiation
       const githubPermitComment = comment.html_url;
 
@@ -83,7 +91,7 @@ export async function calculateIssueReward(owner: string, repo: string, issueNum
 
 export async function calculateRepoReward(owner: string, repo: string) {
   console.log(`Calculating repo reward for owner ${owner}, repo ${repo}`);
-  const issues = await getCompletedIssues(owner, repo);
+  const issues = await getAllIssues(owner, repo);
   let totalReward: AssigneeRewardMap = {};
   for (let i = 0; i < issues.length; i++) {
     const issueNumber = issues[i].number;

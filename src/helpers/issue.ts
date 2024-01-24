@@ -4,17 +4,17 @@ import { config } from "dotenv";
 config();
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
-export async function getCompletedIssues(owner: string, repo: string) {
+export async function getAllIssues(owner: string, repo: string) {
   try {
     let page = 1;
-    const completedIssues = [];
+    const issues = [];
     let shouldFetch = true;
     // Fetch issues until there are no more pages
     while (shouldFetch) {
       const response = await octokit.rest.issues.listForRepo({
         owner,
         repo,
-        state: "closed",
+        state: "all",
         per_page: 100, // Adjust per_page based on your needs
         page,
       });
@@ -26,17 +26,12 @@ export async function getCompletedIssues(owner: string, repo: string) {
         shouldFetch = false;
       }
 
-      const completedIssue = issuesOnPage.filter((v) => {
-        if (v.state_reason == "completed") {
-          return v;
-        }
-      });
-      completedIssues.push(...completedIssue);
+      issues.push(...issuesOnPage);
 
       page++;
     }
 
-    return completedIssues;
+    return issues;
   } catch (error) {
     throw new Error(`Failed to fetch completed issues in ${owner}/${repo}: ${error}`);
   }
